@@ -118,6 +118,11 @@ class HeartRateMonitor:
         return int(level[0])
 
     def _add_nan(self):
+        """
+        Add a NaN value in the history to mark a discontinuity in the sampling.
+
+        Mathplotlib will properly render a gap in the line as a consequence.
+        """
         sample = Sample(time=time.time_ns(), rate=float("nan"))
         self.history.append(sample)
 

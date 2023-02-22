@@ -68,10 +68,14 @@ class HeartRateMonitor:
         await self.disconnected_event.wait()
 
     def load(self, pathname: str):
+        threshold = time.time_ns() - 86400 * 1000_000_000
         try:
             with open(pathname, "rt") as fd:
                 for line in fd:
-                    self.history.append(Sample(*json.loads(line)))
+                    sample = Sample(*json.loads(line))
+                    if sample.time < threshold:
+                        continue
+                    self.history.append(sample)
         except FileNotFoundError:
             pass
 

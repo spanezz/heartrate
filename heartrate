@@ -287,7 +287,7 @@ class StreamServer:
             writer.close()
 
     async def run(self):
-        server = await asyncio.start_server(self.handler, 'localhost', 12121)
+        server = await asyncio.start_unix_server(self.handler, "heartrate.socket")
         async with server:
             await server.serve_forever()
 

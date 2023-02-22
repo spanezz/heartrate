@@ -267,20 +267,24 @@ class StreamServer:
             if rate_min is None or rate_min > last:
                 rate_min = last
 
-        writer.write(json.dumps({
-            "min": rate_min, "max": rate_max, "last": last
-        }).encode() + b"\n")
-        await writer.drain()
-
-        # Notify further events
-        sample_event = asyncio.Event()
-        self.monitor.sample_events.append(sample_event)
-        while True:
-            await sample_event.wait()
-            sample_event.clear()
-            writer.write(json.dumps(self.monitor.history[-1]).encode() + b"\n")
+        try:
+            writer.write(json.dumps({
+                "min": rate_min, "max": rate_max, "last": last
+            }).encode() + b"\n")
             await writer.drain()
-        writer.close()
+
+            # Notify further events
+            sample_event = asyncio.Event()
+            self.monitor.sample_events.append(sample_event)
+            while True:
+                await sample_event.wait()
+                sample_event.clear()
+                writer.write(json.dumps(self.monitor.history[-1]).encode() + b"\n")
+                await writer.drain()
+        except ConnectionResetError:
+            pass
+        finally:
+            writer.close()
 
     async def run(self):
         server = await asyncio.start_server(self.handler, 'localhost', 12121)

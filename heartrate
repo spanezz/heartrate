@@ -256,15 +256,15 @@ class StreamServer:
 
     async def handler(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         # Write initial recap
-        rate_min = 0
+        rate_min = None
         rate_max = None
         for sample in self.monitor.history:
-            if math.isnan(sample.rate):
+            if math.isnan(sample.rate) or sample.rate < 10.0:
                 continue
             last = sample.rate
             if rate_max is None or rate_max < last:
                 rate_max = last
-            if rate_min > last:
+            if rate_min is None or rate_min > last:
                 rate_min = last
 
         writer.write(json.dumps({

@@ -35,7 +35,7 @@ BATTERY_LEVEL_UUID = "00002a19-0000-1000-8000-00805f9b34fb"
 class Sample(NamedTuple):
     # UNIX timestamp in nanoseconds
     time: int
-    rate: int
+    rate: float
     rr: tuple[float] = ()
 
 
@@ -184,7 +184,7 @@ class HeartRateMonitor:
                 rr.append(rr_val / 1024)
                 i += 2
 
-        sample = Sample(time=time.time_ns(), rate=hr, rr=tuple(rr))
+        sample = Sample(time=time.time_ns(), rate=float(hr), rr=tuple(rr))
         self.history.append(sample)
         self.on_sample(sample)
 
